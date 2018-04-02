@@ -26,7 +26,7 @@ FetchWidget<List<Post>>(
   ),
 )
 //
-List<Post> _toPostsList(response) {
+List<Post> _toPostsList(http.Response response) {
   final json = convert.json.decode(response.body);
   return json?.map((p) => Post(p['title']))?.toList() ?? <Post>[];
 }
@@ -77,7 +77,7 @@ FetchWidget<List<Post>>(
   },
 )
 //
-List<Post> _toPostsList(response) {
+List<Post> _toPostsList(http.Response response) {
   final json = convert.json.decode(response.body);
   return json?.map((p) => Post(p['title']))?.toList() ?? <Post>[];
 }
