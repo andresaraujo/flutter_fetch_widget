@@ -1,45 +1,24 @@
 # flutter_fetch_widget
-# Make simple http requests with a Flutter widget.
 
-### Basic usage
-```dart
-// import 'dart:convert' as convert;
-// import 'package:http/http.dart' as http;
+Make simple http requests with a Flutter widget.
 
-FetchWidget<http.Response>(
-  url: "https://jsonplaceholder.typicode.com/posts",
-  transform: (_) => _,
-  builder: (model) => Text("${model.data?.body}"),
-)
-```
+### Features
 
-### Transforming response to a data model
-```dart
-// import 'dart:convert' as convert;
-// import 'package:http/http.dart' as http;
+- Uses package [http](https://pub.dartlang.org/packages/http) for requests
+- Allows to transform response to a data model
+- supports GET/POST methods
 
-FetchWidget<List<Post>>(
-  url: "https://jsonplaceholder.typicode.com/posts",
-  transform: _toPostsList,
-  builder: (model) => Column(
-    children: model.data?.map((p) => new Text(p.title))?.toList() ?? <Widget>[],
-  ),
-)
-//
-List<Post> _toPostsList(http.Response response) {
-  final json = convert.json.decode(response.body);
-  return json?.map((p) => Post(p['title']))?.toList() ?? <Post>[];
-}
-```
+### Getting started
 
-### Control over request status and response code
+Here is a quick look at using the fetch widget:
+
 ```dart
 // import 'dart:convert' as convert;
 // import 'package:http/http.dart' as http;
 
 FetchWidget<List<Post>>(
   url: "https://jsonplaceholder.typicode.com/posts",
-  transform: _toPostsList,
+  transform: _toPost,
   builder: (model) {
     if (model.isWaiting) {
       return Text('Loading...');
@@ -50,35 +29,21 @@ FetchWidget<List<Post>>(
         'Could not connect to API service. `${model.response.body}`');
     }
 
-    final items = <Widget>[
-      ListTile(
-        title: RaisedButton(
-          color: Colors.blue,
-          textColor: Colors.white,
-          onPressed: () => model.doFetch(),
-          child: Text('Refresh')),
-      )
-    ];
-
-    if (model.isDone) {
-      items.addAll(model.data
-          .map((p) => ListTile(
-                leading: Icon(Icons.bookmark),
-                title: Text(p.title),
-              ))
-          .toList());
-    }
-
-    return ListView(
-      shrinkWrap: true,
-      padding: EdgeInsets.all(20.0),
-      children: items,
-    );
+    return Column(
+      children: <Widget>[
+        Text(model.data.id),
+        Text(model.data.title),
+      ]
+    )
   },
 )
 //
-List<Post> _toPostsList(http.Response response) {
+Post _toPost(http.Response response) {
   final json = convert.json.decode(response.body);
-  return json?.map((p) => Post(p['title']))?.toList() ?? <Post>[];
+  return Post(json['id'], json['title']);
 }
 ```
+
+### Acknowledgements
+
+This was insipred by https://github.com/tkh44/holen

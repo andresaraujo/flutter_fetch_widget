@@ -36,9 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: new Text(widget.title),
       ),
       body: new Center(
-        child: new FetchWidget<List<Post>>(
-          url: 'https://jsonplaceholder.typicode.com/posts',
-          transform: _toPostsList,
+        child: new FetchWidget<Post>(
+          url: 'https://jsonplaceholder.typicode.com/posts/1',
+          transform: _toPost,
           builder: (model) {
             if (model.isWaiting) {
               return new Text('Loading...');
@@ -49,29 +49,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   'Could not connect to API service. `${model.response.body}`');
             }
 
-            final items = <Widget>[
-              new ListTile(
-                title: new RaisedButton(
+            return new Column(
+              children: <Widget>[
+                new Text('Id: ${model.data.id}'),
+                new Text('Title: ${model.data.title}'),
+                new RaisedButton(
                     color: Colors.blue,
                     textColor: Colors.white,
                     onPressed: () => model.doFetch(),
                     child: new Text('Refresh')),
-              )
-            ];
-
-            if (model.isDone) {
-              items.addAll(model.data
-                  .map((p) => new ListTile(
-                        leading: const Icon(Icons.bookmark),
-                        title: new Text(p.title),
-                      ))
-                  .toList());
-            }
-
-            return new ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(20.0),
-              children: items,
+              ],
             );
           },
         ),
@@ -80,13 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-List<Post> _toPostsList(response) {
-  List<Map<String, dynamic>> json = convert.json.decode(response.body);
-  return json?.map((p) => new Post(p['title']))?.toList() ?? <Post>[];
+Post _toPost(response) {
+  final Map<String, dynamic> json = convert.json.decode(response.body);
+  return new Post(json['id'], json['title']);
 }
 
 class Post {
+  final int id;
   final String title;
 
-  Post(this.title);
+  Post(this.id, this.title);
 }
