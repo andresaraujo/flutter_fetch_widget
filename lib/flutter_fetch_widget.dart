@@ -9,6 +9,59 @@ import 'package:http/http.dart' as http;
 typedef Widget FetchWidgetBuilder<T>(FetchResponseModel<T> fetchResponseModel);
 typedef T Transform<T>(http.Response response);
 
+/// A widget that makes a Http request.
+///
+/// The [builder] callback will be called with a [FetchResponseModel] which encapsulates
+/// the state and data from the response.
+///
+/// The [transform] callback will be called with a [http.Response] return type must be of type [T]
+///
+/// ## Sample code
+///
+/// This sample shows a [FetchWidget] set to fetch a json endpoint and transforming the [http.Response] to a data model.
+///
+/// ```dart
+/// new FetchWidget<Post>(
+///   url: 'https://jsonplaceholder.typicode.com/posts/1',
+///   transform: _toPost,
+///   builder: (model) {
+///     if (model.isWaiting) {
+///       return new Text('Loading...');
+///   }
+///
+///   if (model.isDone && model.statusCode != 200) {
+///     return new Text(
+///       'Could not connect to API service. `${model.response.body}`');
+///   }
+///
+///   return new Column(
+///     children: <Widget>[
+///       new Text('Id: ${model.data.id}'),
+///       new Text('Title: ${model.data.title}'),
+///       new RaisedButton(
+///         color: Colors.blue,
+///         textColor: Colors.white,
+///         onPressed: () => model.doFetch(),
+///         child: new Text('Refresh')),
+///      ],
+///    );
+///  },
+///),
+/// ```
+///
+/// ```dart
+///Post _toPost(http.Response response) {
+///  final Map<String, dynamic> json = convert.json.decode(response.body);
+///  return new Post(json['id'], json['title']);
+///}
+///
+///class Post {
+///  final int id;
+///  final String title;
+///
+///  Post(this.id, this.title);
+///}
+/// ```
 class FetchWidget<T> extends StatefulWidget {
   final String url;
   final String method;
@@ -85,6 +138,14 @@ class _FetchWidgetState<T> extends State<FetchWidget<T>> {
       });
 }
 
+/// Snapshot of the fetch widget response.
+///
+/// If the request [isDone] the [data] will have a value set
+///
+/// [isWaiting] getter will be true if the request is waiting to finish
+/// [isDone] getter will be true if request has already finished.
+/// [isPending] getter will be true if request has not started
+///
 class FetchResponseModel<T> {
   final BuildContext context;
   final ConnectionState status;
