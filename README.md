@@ -17,7 +17,7 @@ Here is a quick look at using the fetch widget:
 // import 'package:http/http.dart' as http;
 
 FetchWidget<List<Post>>(
-  url: "https://jsonplaceholder.typicode.com/posts",
+  url: "https://jsonplaceholder.typicode.com/posts/1",
   transform: _toPost,
   builder: (model) {
     if (model.isWaiting) {
@@ -46,4 +46,4 @@ Post _toPost(http.Response response) {
 
 ### Acknowledgements
 
-This was insipred by https://github.com/tkh44/holen
+This was inspired by https://github.com/tkh44/holen

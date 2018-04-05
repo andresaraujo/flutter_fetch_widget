@@ -39,24 +39,24 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new FetchWidget<Post>(
           url: 'https://jsonplaceholder.typicode.com/posts/1',
           transform: _toPost,
-          builder: (model) {
-            if (model.isWaiting) {
+          builder: (fetchPost) {
+            if (fetchPost.isWaiting) {
               return new Text('Loading...');
             }
 
-            if (model.isDone && model.statusCode != 200) {
+            if (fetchPost.isDone && fetchPost.statusCode != 200) {
               return new Text(
-                  'Could not connect to API service. `${model.response.body}`');
+                  'Could not connect to API service. `${fetchPost.response.body}`');
             }
 
             return new Column(
               children: <Widget>[
-                new Text('Id: ${model.data.id}'),
-                new Text('Title: ${model.data.title}'),
+                new Text('Id: ${fetchPost.data.id}'),
+                new Text('Title: ${fetchPost.data.title}'),
                 new RaisedButton(
-                    color: Colors.blue,
+                    color: Colors.green,
                     textColor: Colors.white,
-                    onPressed: () => model.doFetch(),
+                    onPressed: () => fetchPost.doFetch(),
                     child: new Text('Refresh')),
               ],
             );

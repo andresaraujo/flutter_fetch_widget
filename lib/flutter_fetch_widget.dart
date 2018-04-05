@@ -12,9 +12,15 @@ typedef T Transform<T>(http.Response response);
 /// A widget that makes a Http request.
 ///
 /// The [builder] callback will be called with a [FetchResponseModel] which encapsulates
-/// the state and data from the response.
+/// the state and data from the response. If the request [method] is a 'GET', 'OPTIONS' the
+/// default value for [lazy] will be true and the request will be sent after the widget initializes,
+/// if 'POST', 'PUT', 'PATCH', 'DELETE' the request wont be send automatically.
+///
+/// To send the request programmatically use [FetchResponseModel.doFetch] from the builder callback.
 ///
 /// The [transform] callback will be called with a [http.Response] return type must be of type [T]
+///
+/// The [client] argument is meant for passing a mock http client and testing more easily
 ///
 /// ## Sample code
 ///
@@ -73,6 +79,8 @@ class FetchWidget<T> extends StatefulWidget {
   final FetchWidgetBuilder<T> builder;
   final Transform<T> transform;
 
+  final http.Client client;
+
   FetchWidget({
     @required this.url,
     this.method = 'GET',
@@ -81,6 +89,7 @@ class FetchWidget<T> extends StatefulWidget {
     this.lazy,
     @required this.builder,
     @required this.transform,
+    this.client,
   });
 
   @override
@@ -89,12 +98,16 @@ class FetchWidget<T> extends StatefulWidget {
 
 class _FetchWidgetState<T> extends State<FetchWidget<T>> {
   Future<http.Response> _response;
+  http.Client _client;
 
   @override
   void initState() {
     super.initState();
 
-    final lazy = widget.lazy ?? (['POST', 'PUT', 'PATCH', 'DELETE'].contains(widget.method));
+    _client = widget.client ?? new http.Client();
+
+    final lazy = widget.lazy ??
+        (['POST', 'PUT', 'PATCH', 'DELETE'].contains(widget.method));
     if (!lazy) {
       _doFetch();
     }
@@ -104,19 +117,21 @@ class _FetchWidgetState<T> extends State<FetchWidget<T>> {
     setState(() {
       switch (widget.method) {
         case 'POST':
-          _response =
-              http.post(widget.url, body: widget.body, headers: widget.headers);
+          _response = _client.post(widget.url,
+              body: widget.body, headers: widget.headers);
           break;
         case 'GET':
         default:
-          _response = http.get(widget.url, headers: widget.headers);
+          _response = _client.get(widget.url, headers: widget.headers);
           break;
       }
     });
   }
 
   T _transform(http.Response response) {
-    if(response != null && response.statusCode >= 200 && response.statusCode < 300) {
+    if (response != null &&
+        response.statusCode >= 200 &&
+        response.statusCode < 300) {
       return widget.transform(response);
     }
     return null;
