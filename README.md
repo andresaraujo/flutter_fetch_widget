@@ -16,7 +16,7 @@ Here is a quick look at using the fetch widget:
 // import 'dart:convert' as convert;
 // import 'package:http/http.dart' as http;
 
-FetchWidget<List<Post>>(
+FetchWidget<Post>(
   url: "https://jsonplaceholder.typicode.com/posts/1",
   transform: _toPost,
   builder: (model) {
